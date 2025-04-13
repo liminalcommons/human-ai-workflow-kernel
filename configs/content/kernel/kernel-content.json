@@ -1,0 +1,114 @@
+{
+  "_comment": "Content config for ephemeral text used by 'kernel-artifact'.",
+  "type": "section-config",
+  "id": "kernel-content",
+  "schemaRef": {
+    "_comment": "References content-schema.json, version 3.0",
+    "id": "content-schema",
+    "version": "3.0"
+  },
+  "metadata": {
+    "_comment": "Basic info about this content config",
+    "description": "Defines ephemeral text for the kernel doc",
+    "version": "1.0.0",
+    "generation_frequency": "manual",
+    "output_format": "markdown"
+  },
+  "instructions": {
+    "_comment": "Guidance for ephemeral generation of kernel doc content",
+    "global": "Provide a concise kernel overview for a self-documenting workflow system.",
+    "system_prompt": "Generate ephemeral text describing the minimal foundation (kernel).",
+    "user_prompt": "Summarize how to fork or extend the kernel for new workflows."
+  },
+  "inputs": {
+    "sources": []
+  },
+  "ephemeralStorage": {
+    "_comment": "Stores ephemeral JSON at content/<content-id>/<version>/<timestamp>.json",
+    "basePath": "content",
+    "subfolderPattern": "<content-id>/<version>",
+    "filenamePattern": "<dttm-utc>.json",
+    "format": "json"
+  },
+  "elements": [
+    {
+      "_comment": "Overview block: describes what the kernel is",
+      "name": "overview",
+      "description": "High-level kernel overview",
+      "prompt_guidance": "Explain the importance of the kernel's minimal foundation.",
+      "format": "section",
+      "output_format": "markdown",
+      "example_output": "## Overview: The Human-AI Workflow Kernel\n\nWelcome to the core of the Human-AI Workflow system. This 'Kernel' isn't code in the traditional sense; it's the foundational set of **JSON Schemas** (`schemas/`) and **Configuration Patterns** (`configs/`) that enable structured, repeatable, and self-documenting workflows for generating various artifacts (like documentation, tests, or even code scaffolding).\n\nThe key principles are:\n\n*   **Configuration over Code:** Define *what* needs to be generated and *how* using declarative JSON files, rather than writing imperative scripts for each artifact.\n*   **Separation of Concerns:** Content definition (`content-config`) is distinct from artifact assembly (`artifact-config`).\n*   **Human-AI Collaboration Native:** The v3.0 schemas explicitly include fields (`generation_source`, `review_status`, `expected_source`, `review_required`, etc.) to manage and track the interaction between human team members and AI assistants within the workflow configuration itself.\n*   **Extensibility:** Designed to be a minimal base that you can fork and extend for your specific needs.",
+      "generation_source": "mixed",
+      "review_status": "approved",
+      "human_feedback": ""
+    },
+    {
+      "_comment": "Extension guide block: how to adapt the kernel",
+      "name": "extension-guide",
+      "description": "Guide on forking/extending the kernel",
+      "prompt_guidance": "Steps for customization or extension by new contributors.",
+      "format": "section",
+      "output_format": "markdown",
+      "example_output": "## Extending the Kernel\n\nTo adapt this kernel for your own workflows:\n\n1.  **Fork/Copy:** Start with this repository as your base.\n2.  **Define Content:** Create new content configurations (e.g., in `configs/content/your-feature/`) based on `schemas/content-schema.json`. Define the elements (text, code snippets, test steps) needed for your target artifact.\n3.  **Define Artifacts:** Create corresponding artifact configurations (e.g., in `configs/artifacts/your-feature/`) based on `schemas/artifact-schema.json`. Reference your content configs and specify the final output file(s) and format.\n4.  **Leverage v3.0 Features:** Utilize the advanced fields in the v3.0 schemas for:\n    *   **Detailed Input Sourcing:** Pull context from other files, configs, or requirements (`inputs.sources`).\n    *   **Specific Generation Types:** Use `generation.patterns.type` like `template_fill` or `code_generation`.\n    *   **Advanced Validation:** Define `lint` or `syntax` checks (`validation.rules`).\n    *   **Dependency Tracking:** Link related artifacts (`dependencies`).\n5.  **Implement Tooling (If Needed):** While the schemas define the *structure*, processing advanced v3.0 features (like specific generation types or validation) requires a **generation engine or external tooling** capable of interpreting them. This kernel focuses on the configuration structure, not the full implementation.",
+      "generation_source": "mixed",
+      "review_status": "approved",
+      "human_feedback": ""
+    }
+  ],
+  "children": [],
+  "generation": {
+    "patterns": [
+      {
+        "id": "kernel-generation",
+        "type": "demonstration",
+        "template": "# Kernel Ephemeral Text\n\n{{overview}}\n\n{{extension-guide}}",
+        "variables": [
+          {
+            "name": "overview",
+            "variableType": "string",
+            "source": "elements.0.example_output"
+          },
+          {
+            "name": "extension-guide",
+            "variableType": "string",
+            "source": "elements.1.example_output"
+          }
+        ]
+      }
+    ]
+  },
+  "validation": {
+    "rules": [
+      {
+        "_comment": "Ensures there's an overview block",
+        "id": "overview-check",
+        "check": "Presence of overview",
+        "threshold": 1.0
+      },
+      {
+        "_comment": "Ensures there's an extension guide block",
+        "id": "extension-check",
+        "check": "Presence of extension-guide",
+        "threshold": 1.0
+      }
+    ]
+  },
+  "state": {
+    "tracking": {
+      "history": true,
+      "versioning": true
+    }
+  },
+  "evolution": {
+    "stage": "draft",
+    "history": [
+      {
+        "date": "2025-03-10",
+        "type": "creation",
+        "description": "Initial ephemeral kernel content config in JSON.",
+        "rationale": "Needed a minimal foundation doc for new contributors."
+      }
+    ]
+  }
+}

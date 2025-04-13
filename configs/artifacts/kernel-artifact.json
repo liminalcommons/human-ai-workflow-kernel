@@ -1,0 +1,66 @@
+{
+  "_comment": "Artifact config for generating KERNEL.md as a final doc, referencing ephemeral kernel-doc content.",
+  "type": "artifact-config",
+  "id": "kernel-artifact",
+  "schemaRef": {
+    "_comment": "Points to artifact-schema.json (version 3.0).",
+    "id": "artifact-schema",
+    "version": "3.0"
+  },
+  "metadata": {
+    "_comment": "Main artifact fields.",
+    "title": "Human-AI Workflow Kernel Artifact",
+    "purpose": "Generates the KERNEL.md doc, describing the minimal foundation.",
+    "description": "Pulls ephemeral text from 'kernel-doc' content. Merges per compositionStrategy.",
+    "outputs": [
+      {
+        "_comment": "Single doc in markdown at project root.",
+        "file": "../../KERNEL.md",
+        "format": "markdown"
+      }
+    ],
+    "compositionStrategy": "concat"
+  },
+  "content": {
+    "_comment": "Points to ephemeral content for the kernel artifact.",
+    "children": [
+      {
+        "_comment": "We retrieve all ephemeral versions from 'kernel-content' (retrievalStrategy=all).",
+        "id": "kernel-content",
+        "path": "../content/kernel/kernel-content.json",
+        "required": true,
+        "order": 1,
+        "retrievalStrategy": "all",
+        "notes": "Append all ephemeral kernel-content outputs in chronological order.",
+        "expected_source": "ai",
+        "review_required": true
+      }
+    ]
+  },
+  "state": {
+    "tracking": {
+      "_comment": "Track changes and versioning for the artifact.",
+      "history": true,
+      "versioning": true
+    }
+  },
+  "validation": {
+    "_comment": "Placeholders for checks, if needed.",
+    "requiredSections": [],
+    "completeness": [],
+    "coherence": []
+  },
+  "evolution": {
+    "_comment": "Record artifact evolution events.",
+    "stage": "draft",
+    "history": [
+      {
+        "_comment": "Sample creation record for demonstration.",
+        "date": "2025-03-10",
+        "type": "creation",
+        "description": "Initial kernel artifact config in JSON.",
+        "rationale": "Needed a minimal foundation doc referencing ephemeral content."
+      }
+    ]
+  }
+}

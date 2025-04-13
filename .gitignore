@@ -1,0 +1,17 @@
+# Environment variables
+.env
+
+# MacOS system files
+.DS_Store
+
+# Python cache files (if any Python scripts were used)
+__pycache__/
+*.py[cod]
+
+# IDE specific files (Example: VSCode)
+.vscode/
+
+# Potential future build/output directories (Examples)
+# build/
+# dist/
+# content/*/*/????????-????-????-????-????????????_*.json  # Example for ephemeral storage, adjust pattern if needed 

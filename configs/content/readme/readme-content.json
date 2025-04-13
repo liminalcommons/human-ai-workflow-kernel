@@ -1,0 +1,115 @@
+{
+  "_comment": "Content config for generating ephemeral text used by 'readme-artifact'.",
+  "type": "section-config",
+  "id": "readme-content",
+  "schemaRef": {
+    "_comment": "References content-schema.json, version 3.0",
+    "id": "content-schema",
+    "version": "3.0"
+  },
+  "metadata": {
+    "_comment": "Basic info about this content config",
+    "description": "Defines ephemeral text for the top-level README doc",
+    "version": "1.0.0",
+    "generation_frequency": "manual",
+    "output_format": "markdown"
+  },
+  "instructions": {
+    "_comment": "Guidance for the AI or script generating ephemeral text",
+    "global": "Provide a welcoming introduction and a succinct usage section.",
+    "system_prompt": "Generate ephemeral text for README in a short, user-friendly style.",
+    "user_prompt": "Summarize key points about project structure, references, and usage steps."
+  },
+  "inputs": {
+    "sources": []
+  },
+  "ephemeralStorage": {
+    "_comment": "How ephemeral JSON is stored: content/<content-id>/<version>/<timestamp>.json",
+    "basePath": "content",
+    "subfolderPattern": "<content-id>/<version>",
+    "filenamePattern": "<dttm-utc>.json",
+    "format": "json"
+  },
+  "elements": [
+    {
+      "_comment": "First text block: Introduction",
+      "name": "intro",
+      "description": "Brief project introduction",
+      "prompt_guidance": "Explain the purpose of this repository.",
+      "format": "section",
+      "output_format": "markdown",
+      "example_output": "## Welcome to the Human-AI Workflow Kernel\n\nThis repository provides a **configuration kernel** for building self-documenting, Human-AI collaborative workflows. Instead of complex scripts, you define content generation and artifact assembly using structured JSON files, guided by the schemas in the `schemas/` directory.\n\nThis approach allows teams (including AI assistants) to reproducibly generate various artifacts like documentation, tests, or even code scaffolding.\n\n**Key Documents:**\n\n*   **This README:** Explains its own generation as an example.\n*   **`KERNEL.md`:** Describes the core concepts, schemas, and how to extend the kernel.",
+      "generation_source": "mixed",
+      "review_status": "approved",
+      "human_feedback": ""
+    },
+    {
+      "_comment": "Second text block: How this README is generated",
+      "name": "readme_generation_process",
+      "description": "Explains how this specific README file is generated.",
+      "prompt_guidance": "Detail the steps involved in generating this README from its configs.",
+      "format": "section",
+      "output_format": "markdown",
+      "example_output": "## How This README is Generated (Example Workflow)\n\nThis `README.md` file serves as a simple demonstration of the workflow:\n\n1.  **Content Definition (`configs/content/readme/readme-content.json`):** This file defines this introductory section and the section you are currently reading. It uses the `content-schema.json` schema and includes descriptions, example outputs (used for this demo), and fields for tracking Human-AI collaboration (`generation_source`, `review_status`).\n\n2.  **Artifact Definition (`configs/artifacts/readme-artifact.json`):** This file, based on `artifact-schema.json`, orchestrates the assembly. It points to the `readme-content.json` above, specifies how to retrieve the content (`retrievalStrategy: latest`), how to combine sections (`compositionStrategy: concat`), and defines the final output file (`README.md`). It also marks the content as requiring review (`review_required: true`).\n\n3.  **Generation Simulation:** In this repository (which focuses on the *kernel definition*), we simulate the generation by concatenating the `example_output` fields from the content config. A full implementation would involve a tool that reads the artifact config, resolves content based on the strategy, potentially uses AI based on `prompt_guidance` if no pre-generated content exists, performs validation based on schema rules, and writes the final `README.md`.",
+      "generation_source": "mixed",
+      "review_status": "approved",
+      "human_feedback": ""
+    }
+  ],
+  "children": [],
+  "generation": {
+    "_comment": "Describes how to assemble the ephemeral text from elements (Demonstration)",
+    "patterns": [
+      {
+        "id": "readme-generation",
+        "type": "demonstration",
+        "template": "# README: A Self-Documenting Artifact\n\n{{intro}}\n\n{{readme_generation_process}}",
+        "variables": [
+          {
+            "name": "intro",
+            "variableType": "string",
+            "source": "elements.0.example_output"
+          },
+          {
+            "name": "readme_generation_process",
+            "variableType": "string",
+            "source": "elements.1.example_output"
+          }
+        ]
+      }
+    ]
+  },
+  "validation": {
+    "rules": [
+      {
+        "_comment": "Checks if an introduction is present",
+        "id": "intro-check",
+        "check": "Presence of introduction",
+        "threshold": 1.0
+      },
+      {
+        "_comment": "Checks if usage instructions exist",
+        "id": "usage-check",
+        "check": "Presence of usage",
+        "threshold": 1.0
+      }
+    ]
+  },
+  "state": {
+    "tracking": {
+      "history": true,
+      "versioning": true
+    }
+  },
+  "evolution": {
+    "stage": "draft",
+    "history": [
+      {
+        "date": "2025-03-10",
+        "type": "creation",
+        "description": "Initial ephemeral content config for README in JSON.",
+        "rationale": "Needed a user-facing doc introduction."
+      }
+    ]
+  }
+}

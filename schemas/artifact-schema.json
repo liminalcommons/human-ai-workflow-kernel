@@ -1,0 +1,173 @@
+{
+  "_comment": "Artifact Schema (JSON). Defines top-level workflow artifacts, composition, advanced validation, and dependencies. Version 3.0 adds richer output specs, validation, and dependency tracking.",
+  "type": "schema",
+  "id": "artifact-schema",
+  "version": "3.0",
+  "purpose": "Defines extensible top-level workflow artifacts, supporting complex composition, validation, and dependency tracking for various SDLC outputs. Designed for potentially advanced external tooling.",
+  "schema": {
+    "_comment": "Core object describing an artifact config.",
+    "type": "artifact",
+    "metadata": {
+      "_comment": "Identifying and descriptive info about the artifact",
+      "id": "string",
+      "type": "string", 
+      "version": "string",
+      "title": "string",
+      "purpose": "string",
+      "description": "string?", 
+      "outputs": {
+        "_comment": "Array of final doc/code outputs for this artifact",
+        "type": "array",
+        "items": {
+          "_comment": "Each item defines a final output file/location",
+          "type": "object",
+          "properties": {
+            "file": {
+              "_comment": "Path/URI for final artifact, e.g., README.md, src/app.py, s3://bucket/... ",
+              "type": "string"
+            },
+            "format": {
+              "_comment": "General format category, e.g. 'markdown', 'code', 'binary', 'bdd', 'test_results'",
+              "type": "string"
+            },
+            "language_dialect": {
+              "_comment": "Optional specific language or dialect for formats like 'code' or 'bdd', e.g., 'python', 'javascript', 'gherkin'. Used by external tools for syntax highlighting, validation, etc.",
+              "type": "string"
+            },
+            "encoding": {
+              "_comment": "Optional file encoding, defaults to UTF-8.",
+              "type": "string",
+              "default": "utf-8"
+            }
+          },
+          "required": ["file", "format"]
+        }
+      },
+      "compositionStrategy": {
+        "_comment": "How to merge multiple ephemeral outputs (e.g., 'concat'). External tooling might support more complex strategies.",
+        "type": "string"
+      }
+    },
+    "content": {
+      "_comment": "Defines references to content configs that provide ephemeral text/data",
+      "children": {
+        "_comment": "Each child references a content config with retrieval strategy. Consistent with v2.0 plus collaboration fields.",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {"type": "string"},
+            "path": {"type": "string"},
+            "required": {"type": "boolean"},
+            "order": {"type": "number"},
+            "version": {"type": "string"},
+            "notes": {"type": "string"},
+            "retrievalStrategy": {"type": "string"},
+            "conditions": {"type": "string"},
+            "expected_source": {
+              "_comment": "Typical source expected for this content child (e.g., AI-generated, human-authored).",
+              "type": "string",
+              "enum": ["ai", "human", "template", "mixed", "any"]
+            },
+            "review_required": {
+              "_comment": "Specifies if human review is mandatory for this child's content before final artifact generation.",
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "required": ["id", "path"]
+        }
+      }
+    },
+    "dependencies": {
+      "_comment": "Optional section defining relationships to other artifacts or external systems. Used for traceability and potential workflow orchestration by external tools.",
+      "type": "array",
+      "items": {
+         "type": "object",
+         "properties": {
+            "id": {
+               "type": "string",
+               "_comment": "Unique identifier for this dependency link."
+            },
+            "type": {
+               "type": "string",
+               "enum": ["artifact", "external_system", "requirement", "code_module"],
+                "_comment": "The type of dependency."
+            },
+            "locator": {
+               "type": "string",
+               "_comment": "Identifier for the dependency, e.g., another artifact ID, a requirement ID, a system URL, a code path/module name."
+            },
+            "relationship": {
+               "type": "string",
+               "enum": ["tests", "implements", "documents", "based_on", "related_to"],
+               "_comment": "Describes the relationship between this artifact and the dependency."
+            },
+            "notes": {
+               "type": "string",
+               "_comment": "Human-readable description of the dependency."
+            }
+         }
+      }
+    },
+    "state": {
+      "_comment": "Optional fields for artifact-level state tracking. Consistent with v2.0.",
+      "tracking": {
+        "history": "boolean",
+        "versioning": "boolean"
+      }
+    },
+    "validation": {
+      "_comment": "Artifact-level checks, potentially using external tools based on 'check_type'.",
+       "type": "object",
+       "properties": {
+         "rules": {
+           "type": "array",
+           "items": {
+             "type": "object",
+             "properties": {
+               "id": {
+                 "type": "string"
+               },
+               "check_type": {
+                  "type": "string",
+                  "enum": ["completeness", "coherence", "format", "lint", "custom_check"],
+                  "_comment": "Type of validation. 'completeness'/'coherence' might check required sections/content children. 'format'/'lint' implies external tool integration based on output format/language. 'custom_check' requires external definition."
+               },
+               "target": {
+                 "type": "string",
+                 "_comment": "Specifies what to check, e.g., 'output[0]', 'content.children', 'final_artifact'. Interpretation depends on check_type."
+               },
+               "check_config": {
+                  "type": "object",
+                  "_comment": "Optional type-specific config for the check. External tooling defines structure. E.g., {'linter': 'markdownlint', 'config_file': '.markdownlint.json'}."
+               },
+                "severity": {
+                  "type": "string",
+                  "enum": ["error", "warning", "info"],
+                  "default": "error",
+                  "_comment": "Severity level if the validation rule fails."
+                }
+             }
+           }
+         }
+       }
+    },
+    "evolution": {
+      "_comment": "Track artifact evolution over time. Consistent with v2.0.",
+      "stage": "string",
+      "history": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "date": {"type": "string"},
+            "type": {"type": "string"},
+            "description": {"type": "string"},
+            "rationale": {"type": "string"}
+          }
+        }
+      }
+    }
+  }
+} 

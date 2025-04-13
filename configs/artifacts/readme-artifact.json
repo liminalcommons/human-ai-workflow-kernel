@@ -1,0 +1,66 @@
+{
+  "_comment": "Artifact config for generating README.md as a final doc, using ephemeral content from 'readme-doc'.",
+  "type": "artifact-config",
+  "id": "readme-artifact",
+  "schemaRef": {
+    "_comment": "References artifact-schema.json (version 3.0).",
+    "id": "artifact-schema",
+    "version": "3.0"
+  },
+  "metadata": {
+    "_comment": "Core info about this artifact.",
+    "title": "Repository README Artifact",
+    "purpose": "Generates the top-level README.md",
+    "description": "Uses ephemeral content from 'readme-doc' and merges them per compositionStrategy.",
+    "outputs": [
+      {
+        "_comment": "We produce a single doc in markdown at the project root.",
+        "file": "../../README.md",
+        "format": "markdown"
+      }
+    ],
+    "compositionStrategy": "concat"
+  },
+  "content": {
+    "_comment": "Child references to ephemeral content configs.",
+    "children": [
+      {
+        "_comment": "Points to readme-content content config. We'll use retrievalStrategy=latest.",
+        "id": "readme-content",
+        "path": "../content/readme/readme-content.json",
+        "required": true,
+        "order": 1,
+        "retrievalStrategy": "latest",
+        "notes": "Main README text",
+        "expected_source": "mixed",
+        "review_required": true
+      }
+    ]
+  },
+  "state": {
+    "tracking": {
+      "_comment": "Track changes or version increments for the artifact.",
+      "history": true,
+      "versioning": true
+    }
+  },
+  "validation": {
+    "_comment": "Minimal placeholders for artifact-level checks.",
+    "requiredSections": [],
+    "completeness": [],
+    "coherence": []
+  },
+  "evolution": {
+    "_comment": "Track artifact evolution over time.",
+    "stage": "draft",
+    "history": [
+      {
+        "_comment": "One sample change record for demonstration.",
+        "date": "2025-03-10",
+        "type": "creation",
+        "description": "Initial README artifact config in JSON.",
+        "rationale": "Needed a top-level doc artifact referencing ephemeral content."
+      }
+    ]
+  }
+}

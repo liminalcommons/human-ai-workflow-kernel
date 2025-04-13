@@ -1,0 +1,250 @@
+{
+  "_comment": "Content Schema (JSON). Defines how to generate ephemeral text, ephemeral storage patterns, and supports advanced Human-AI workflows and SDLC artifact generation. Version 3.0 adds detailed input sourcing, generation types, and validation capabilities.",
+  "type": "schema",
+  "id": "content-schema",
+  "version": "3.0",
+  "purpose": "Define content configs for extensible ephemeral generation, suitable for complex Human-AI collaborative workflows and various SDLC artifacts (docs, tests, code). Designed to be processed by potentially advanced external tooling.",
+  "schema": {
+    "_comment": "Core object describing a content config.",
+    "type": "content",
+    "metadata": {
+      "_comment": "Basic identifying info for the content config",
+      "id": "string",
+      "description": "string",
+      "version": "string",
+      "generation_frequency": "string", 
+      "output_format": "string" 
+    },
+    "instructions": {
+      "_comment": "Guidance for AI or generation scripts. Can be basic or complex depending on external tooling capabilities.",
+      "global": "string",
+      "system_prompt": "string", 
+      "user_prompt": "string" 
+    },
+    "inputs": {
+      "_comment": "Defines dependencies on external references or data sources. Crucial for context-aware generation in advanced workflows.",
+      "sources": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "_comment": "Unique identifier for this input source within the config."
+            },
+            "notes": {
+              "type": "string",
+              "_comment": "Human-readable description of this input source."
+            },
+            "source_type": {
+              "type": "string",
+              "enum": ["content_config", "artifact_config", "ephemeral_output", "external_file", "git_reference", "inline_data", "requirement_id"],
+              "_comment": "Specifies the kind of source. Defines how 'source_locator' is interpreted by external tooling."
+            },
+            "source_locator": {
+              "type": "string",
+              "_comment": "Identifier to find the source. Examples: Path for external_file/configs, content ID for ephemeral_output, commit hash/path for git_reference, requirement ID string."
+            },
+            "data_selector": {
+              "type": "string",
+              "_comment": "Specifies what data to extract from the source. Examples: JSONPath '$.elements[0].example_output', line range '10-20', function name 'getUser', section heading '# Details', or special value 'whole_content'. Interpretation depends on source_type and external tooling."
+            },
+            "required": {
+              "type": "boolean",
+              "default": true,
+              "_comment": "If true, generation should fail if this input cannot be resolved."
+            }
+          },
+          "required": ["id", "source_type", "source_locator"]
+        }
+      }
+    },
+    "ephemeralStorage": {
+      "_comment": "Where ephemeral JSON outputs are saved. Consistent with v2.0.",
+      "type": "object",
+      "properties": {
+        "basePath": {
+          "type": "string"
+        },
+        "subfolderPattern": {
+          "type": "string"
+        },
+        "filenamePattern": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        }
+      }
+    },
+    "elements": {
+      "_comment": "Array of text elements, code snippets, test cases, or other content units to generate.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "prompt_guidance": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "_comment": "Intended format of this element, e.g., 'markdown', 'python', 'gherkin'."
+          },
+          "output_format": {
+            "type": "string" 
+          },
+          "example_output": {
+            "type": "string"
+          },
+          "generation_source": {
+            "type": "string",
+            "enum": ["ai", "human", "template", "mixed"],
+            "_comment": "Indicates the primary source of this element's content."
+          },
+          "review_status": {
+            "type": "string",
+            "enum": ["pending", "approved", "needs_revision"],
+            "default": "pending",
+            "_comment": "Tracks the human review status of the generated content."
+          },
+          "human_feedback": {
+            "type": "string",
+            "_comment": "Optional field for human reviewer notes or specific revision requests."
+          }
+        },
+         "required": ["name", "format"]
+      }
+    },
+    "children": {
+      "_comment": "References to sub-content configs for nested structures. Consistent with v2.0.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "path": {"type": "string"},
+          "required": {"type": "boolean"},
+          "order": {"type": "number"},
+          "version": {"type": "string"},
+          "notes": {"type": "string"},
+          "conditions": {"type": "string"}
+        }
+      }
+    },
+    "generation": {
+      "_comment": "Patterns or templates describing how to assemble text/code from elements and inputs. Supports different strategies via 'type'.",
+      "type": "object",
+      "properties": {
+        "patterns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["demonstration", "template_fill", "code_generation", "bdd_scenario_assembly", "custom"],
+                "_comment": "Specifies the generation strategy. 'demonstration' uses element examples. Others imply specific logic/tooling (e.g., Jinja2 for template_fill, code-gen AI for code_generation). 'custom' requires external tool definition."
+              },
+              "template": {
+                "type": "string",
+                "_comment": "Text template with placeholders (e.g., {{var_name}}). Interpretation depends on 'type'."
+              },
+              "variables": {
+                "_comment": "Maps template placeholders to data sources (elements, inputs).",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {"type": "string"},
+                    "variableType": {"type": "string"}, 
+                    "source": {
+                      "type": "string",
+                       "_comment": "Where to pull data from, e.g., 'elements.<name>', 'inputs.<id>', potentially using data_selector syntax from inputs."
+                    },
+                    "default": {"type": "string"}
+                  }
+                }
+              },
+              "generation_config": {
+                 "type": "object",
+                 "_comment": "Optional type-specific configuration for advanced generation. External tooling defines the structure based on 'type'. E.g., {'language': 'python', 'formatter': 'black'} for 'code_generation'."
+              }
+            }
+          }
+        }
+      }
+    },
+    "validation": {
+      "_comment": "Content-level checks, potentially leveraging external tools for advanced validation.",
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "check_type": {
+                 "type": "string",
+                 "enum": ["presence", "format", "lint", "syntax", "custom"],
+                 "_comment": "Specifies the validation type. 'presence'/'format' are basic. Others imply external tool integration (e.g., running a linter, syntax checker). 'custom' requires external definition."
+              },
+              "target": {
+                "type": "string",
+                "_comment": "Specifies what to check, e.g., 'element.<name>', 'generated_output'. Interpretation depends on check_type."
+              },
+              "check_config": {
+                 "type": "object",
+                 "_comment": "Optional type-specific configuration for the check. External tooling defines structure based on 'check_type'. E.g., {'linter': 'flake8', 'options': '--max-line-length=88'}."
+              },
+              "threshold": {
+                "type": "number",
+                "_comment": "Threshold for checks like 'presence' (e.g., minimum count) or quantitative checks."
+              },
+               "severity": {
+                 "type": "string",
+                 "enum": ["error", "warning", "info"],
+                 "default": "error",
+                 "_comment": "Severity level if the validation rule fails."
+               }
+            }
+          }
+        }
+      }
+    },
+    "state": {
+      "_comment": "Optional content-level state tracking. Consistent with v2.0.",
+      "tracking": {
+        "history": "boolean",
+        "versioning": "boolean"
+      }
+    },
+    "evolution": {
+      "_comment": "Track how this content config evolves over time. Consistent with v2.0.",
+      "stage": "string",
+      "history": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "date": {"type": "string"},
+            "type": {"type": "string"},
+            "description": {"type": "string"},
+            "rationale": {"type": "string"}
+          }
+        }
+      }
+    }
+  }
+} 
